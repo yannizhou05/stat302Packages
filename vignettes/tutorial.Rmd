@@ -1,0 +1,175 @@
+---
+title: "Project 3: stat302Packages Tutorial"
+author: "Yanni Zhou"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{stat302Packages Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(stat302Packages)
+```
+
+ * Introduction:
+ 
+Here, we introduce \texttt{stat302Packages}, a package that includes four different functions for the use of statistics, which are the function for t-test, the function for fitting linear models, the function for k-Nearest Neighbors Cross-Validation and the function for Random Forest Cross-Validation. 
+
+ * How to install the \texttt{stat302Packages}
+ 
+Install \texttt{stat302Packages} using:
+
+```{r, eval = FALSE}
+devtools::install_github("yannizhou05/stat302Packages")
+```
+
+## A tutorial for my_t_test function
+
+```{r}
+# Demonstrate a test of the hypothesis mean = 60
+output1 = my_t_test(my_gapminder$lifeExp, alternative = "two.sided", mu = 60)
+```
+
+ * Interpretation for the first test:
+ 
+The null hypothesis for the first hypothesis test is that the mean of the life expectancy of people at birth from 1952 to 2007 over different countries equals to 60. And the alternative hypothesis is that the mean does not equal to 60. 
+By applying the my_t_test function in the \texttt{stat302Packages}, we get the calculated p-value = 0.09322 which is greater than the p-value cut-off of α=0.05. Therefore, we failed to reject the null hypothesis.
+
+```{r}
+# Demonstrate a test of the hypothesis mean < 60
+output2 = my_t_test(my_gapminder$lifeExp, alternative = "greater", mu = 60)
+```
+
+ * Interpretation for the second test:
+ 
+The null hypothesis for the first hypothesis test is that the mean of the life expectancy of people at birth from 1952 to 2007 over different countries is less than 60. And the alternative hypothesis is that the mean is greater than or equal to 60. 
+By applying the my_t_test function in the \texttt{stat302Packages}, we get the calculated p-value = 0.04661 which is less than the p-value cut-off of α=0.05. Therefore, we reject the null hypothesis.
+
+```{r}
+# Demonstrate a test of the hypothesis mean > 60
+output3 = my_t_test(my_gapminder$lifeExp, alternative = "greater", mu = 60)
+```
+
+ * Interpretation for the third test:
+ 
+The null hypothesis for the first hypothesis test is that the mean of the life expectancy of people at birth from 1952 to 2007 over different countries is greater than 60. And the alternative hypothesis is that the mean is less than or equal to 60. 
+By applying the my_t_test function in the \texttt{stat302Packages}, we get the calculated p-value = 0.9534 which is greater than the p-value cut-off of α=0.05. Therefore, we failed to reject the null hypothesis.
+
+## A tutorial for my_lm function
+
+```{r}
+# A regression using lifeExp as response variable and gdpPercap and continent as explanatory variables.
+model <- my_lm(formula = lifeExp ~ gdpPercap + continent, data = my_gapminder)
+```
+
+ * Interpretaton
+
+A unit increases in gdpPercap results in an increase in average lifeExp by 4.453e-04 units, all other variables held constant.
+
+ * Hypothesis Test
+ 
+Null Hypothesis: The mean of per-capita GDP from 1952 to 2007 over different countries is equal to 4.453e-04.
+Alternative Hypothesis: The mean of per-capita GDP from 1952 to 2007 over different countries is not equal to 4.453e-04.
+Interpretation: By applying the my_t_test function in the \texttt{stat302Packages}, we get the calculated p-value = 0 which is less than the p-value cut-off of α=0.05. Therefore, we reject the null hypothesis.
+
+ * Plot the Actual vs. Fitted values of the regression
+
+```{r}
+# Interpretation: From the plot we could see that the some of the points are close to the fitted line
+#                 while some of the points are furthur from the fitted line. 
+#                 And in general, the points have the same trend as the fitted line. However, the model is                       underfitted, since the points have low-variance and high-bias.
+                  
+library(ggpubr)
+regression_coef <- c(0,model[3,1],model[4,1],model[5,1],model[6,1],model[2,1],model[1,1])
+countries <- as.numeric(my_gapminder$continent)
+mod_fits <- model[1,1] + model[2,1] * my_gapminder$gdpPercap
+for(i in 1:length(mod_fits)) {
+  mod_fits[i] = regression_coef[countries[i]] + mod_fits[i]
+}
+my_df <- data.frame(actual = my_gapminder$lifeExp, fitted = mod_fits)
+ggplot(my_df, aes(x = fitted, y = actual)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, col = "red", lty = 2) + 
+  theme_bw(base_size = 15) +
+  labs(x = "Fitted values", y = "Actual values", title = "Actual vs. Fitted") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## A tutorial for my_rf_cv function
+
+```{r}
+# Predict lifeExp using covariate gdpPercap.
+# Iterate through k in c(2, 5, 10)
+# For each value of k, run your function 30 times and store the CV estimated MSE.
+mse_data <- vector()
+k <- c(2,5,10)
+for (i in k) {
+  cv_mse <- vector()
+  for (j in 1:30) {
+    cv_mse[j] = my_rf_cv(i)
+  }
+  mse_data <- c(mse_data,cv_mse)
+}
+```
+```{r}
+k_2 <- rep("k_2",30)
+k_5 <- rep("k_5",30)
+k_10 <- rep("k_10",30)
+k_total <- c(k_2,k_5,k_10)
+get_data <- data.frame(mse_data,k_total)
+```
+
+```{r}
+# 3 boxplots with each value of k
+colnames(get_data) <- c("mse","k")
+ggplot(data = get_data, 
+       aes(x = k, y = mse,group = k, fill = k)) +
+  geom_boxplot(fill = "lightblue",alpha = 0.4) +
+  labs(title = "MSE value by different k value", 
+       x = "K", 
+       y = "MSE")  +
+  theme_bw() +
+  theme(plot.title =
+          element_text(hjust = 0.5))
+```
+
+```{r}
+# A table to display the average CV estimate and the standard deviation of the CV estimates across k.
+average_mse <- c(mean(get_data$mse[1:30]),mean(get_data$mse[31:60]),mean(get_data$mse[61:90]))
+sd_mse <- c(sd(get_data$mse[1:30]),sd(get_data$mse[31:60]),sd(get_data$mse[61:90]))
+table <- cbind(average_mse,sd_mse)
+stats <- t(table)
+colnames(stats) <- c("k_2","k_5","k_10")
+stats <- as.table(stats)
+```
+
+ * Discussion
+From both of the boxplots and the table, we could discover that the smallest k value results in the smallest  average CV estimated value, while the greatest k value results in the smallest standard deviations of the CV estimates across k. In general, the average CV estimated value increases as the k value increases and the standard deviations of the CV estimates across k decreases as the k value increases from the boxplots and the table. From my opinion, this is because that the increase of k value provides more data for calculating the CV estimate.
+
+## A tutorial for my_rf_cv function
+
+```{r}
+# Predict output class continent using covariates gdpPercap and lifeExp using 5-fold cross validation.
+# For each value of k_nn, record the training misclassification rate and the CV misclassification rate.
+cv_record <- vector()
+cv_training <- vector()
+for (i in 1:10) {
+  class <- my_knn_cv(select(gapminder, lifeExp, gdpPercap),gapminder$continent,i,5)
+  cv_record[i] = class$cv_error
+  cv_training[i] = sum(gapminder$continent != class$class) / length(gapminder$continent)
+}
+```
+
+ * Discussion
+
+Based on the training misclassification rates, I would choose the model with the smallest k_nn value, since the training misclassification rates increase as the k_nn value increases. Based on the CV misclassification rates,
+I would choose the model with the largest k_nn value, since the CV misclassification rates decrease as the k_nn value increases.
+In practice, I would choose the model with the largest k_nn value, because the cross-validation would help us to find the optimal k_nn value for a k-nearest neighbor model by finding the minimum test error. 
