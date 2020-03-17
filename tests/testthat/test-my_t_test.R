@@ -26,3 +26,7 @@ test_that("my_t_test has the correct output", {
   expect_identical(true_output3[4], output3[4])
 
 })
+
+test_that("my_t_test stops with wrong input", {
+  expect_error(my_t_test(my_gapminder$lifeExp, alternative = "anything", mu = 60))
+})
