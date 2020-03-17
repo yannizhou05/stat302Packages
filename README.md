@@ -1,6 +1,6 @@
   <!-- badges: start -->
   [![Travis build status](https://travis-ci.org/yannizhou05/stat302Packages.svg?branch=master)](https://travis-ci.org/yannizhou05/stat302Packages)
-  [![codecov](https://codecov.io/gh/yannizhou05/stat302Packages/branch/master/graph/badge.svg?token=8e5460da-2984-4947-b096-ba4f04cec584)](https://codecov.io/gh/yannizhou05/stat302Packages)
+  [![codecov](https://codecov.io/gh/yannizhou05/stat302Packages/branch/master/graph/badge.svg)](https://codecov.io/gh/yannizhou05/stat302Packages)
   <!-- badges: end -->
 
 ## Installation
