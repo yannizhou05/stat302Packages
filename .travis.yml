@@ -4,4 +4,4 @@ language: R
 "warnings_are_errors: false"
 cache: packages
 after_success:
-  - Rscript -e 'covr::codecov(token = "8e5460da-2984-4947-b096-ba4f04cec584")'
+  - Rscript -e 'covr::codecov()'
