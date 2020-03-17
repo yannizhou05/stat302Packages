@@ -159,12 +159,13 @@ From both of the boxplots and the table, we could discover that the smallest k v
 ```{r}
 # Predict output class continent using covariates gdpPercap and lifeExp using 5-fold cross validation.
 # For each value of k_nn, record the training misclassification rate and the CV misclassification rate.
+library(dplyr)
 cv_record <- vector()
 cv_training <- vector()
 for (i in 1:10) {
-  class <- my_knn_cv(select(gapminder, lifeExp, gdpPercap),gapminder$continent,i,5)
+  class <- my_knn_cv(select(my_gapminder, lifeExp, gdpPercap),my_gapminder$continent,i,5)
   cv_record[i] = class$cv_error
-  cv_training[i] = sum(gapminder$continent != class$class) / length(gapminder$continent)
+  cv_training[i] = sum(my_gapminder$continent != class$class) / length(my_gapminder$continent)
 }
 ```
 
