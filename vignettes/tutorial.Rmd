@@ -15,8 +15,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r, message = FALSE}
 library(stat302Packages)
+library(ggpubr)
+library(dplyr)
 ```
 
  * Introduction:
@@ -87,7 +89,6 @@ Interpretation: By applying the my_t_test function in the \texttt{stat302Package
 #                 while some of the points are furthur from the fitted line. 
 #                 And in general, the points have the same trend as the fitted line. However, the model is                       underfitted, since the points have low-variance and high-bias.
                   
-library(ggpubr)
 regression_coef <- c(0,model[3,1],model[4,1],model[5,1],model[6,1],model[2,1],model[1,1])
 countries <- as.numeric(my_gapminder$continent)
 mod_fits <- model[1,1] + model[2,1] * my_gapminder$gdpPercap
@@ -159,7 +160,6 @@ From both of the boxplots and the table, we could discover that the smallest k v
 ```{r}
 # Predict output class continent using covariates gdpPercap and lifeExp using 5-fold cross validation.
 # For each value of k_nn, record the training misclassification rate and the CV misclassification rate.
-library(dplyr)
 cv_record <- vector()
 cv_training <- vector()
 for (i in 1:10) {
